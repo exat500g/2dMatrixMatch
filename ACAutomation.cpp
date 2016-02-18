@@ -1,28 +1,24 @@
-#include "_ACAutomation.h"
-#include <cstddef>
+#include "ACAutomation.h"
 #include <iostream>
-#include <string.h>
 #include <cstring>
 
-using namespace std;
-
-
+//fork from https://github.com/kelvict/ACAutomation
+//I modified it to uint8_t index
 
 ACAutomation::ACAutomation()
 {
     this->root = new Node();
 }
 
-void freeNode(Node *node)
+void ACAutomation::freeNode(Node *node)
 {
-    for(int i=0; i<KIND; ++i)
+    for(int i=0; i<NODE_KIND; ++i)
     {
         if(node->next[i] != NULL)
         {
             freeNode(node->next[i]);
         }
     }
-    delete node->word;
     delete node;
 }
 
@@ -31,29 +27,17 @@ ACAutomation::~ACAutomation()
     freeNode(this->root);
 }
 
-void ACAutomation::insert(const char *str)
+void ACAutomation::insert(uint8_t *pattern,uint32_t size,uint32_t id)
 {
     Node *p = this->root;
-    int i = 0;
-    while(str[i])
-    {
-        //KIND=16, 所以一个字节分成2个4字节
-        unsigned short chr = str[i];
-        for(int j=0; j<2; ++j)
-        {
-            int index = chr % 16;
-	    index = (index | (j << 4));
-            chr /= 16;
-            if (p->next[index] == NULL)
-                p->next[index] = new Node();
-            p = p->next[index];
-        }
-        i++;
+    for(uint32_t i=0;i<size;i++){
+        uint32_t index=pattern[i];
+        if (p->next[index] == NULL)
+            p->next[index] = new Node();
+        p = p->next[index];
     }
-    p->end = true;
-    p->word = strdup(str);
+    p->flag = id + 1;     //modify zero based id to 1 base id, because 0 is use as end flag
 }
-
 
 void ACAutomation::build(){
     this->root->fail = NULL;
@@ -62,7 +46,7 @@ void ACAutomation::build(){
     {
         Node *parent = this->q.front();
         this->q.pop();
-        for(int i=0; i<KIND; ++i)
+        for(int i=0; i<NODE_KIND; ++i)
         {
             Node *child =parent->next[i];
             if (child == NULL) continue;
@@ -89,44 +73,51 @@ void ACAutomation::build(){
 }
 
 
-void ACAutomation::match(const char *str, bool multi, queue<Result> &ret)
+void ACAutomation::match(uint8_t *data,uint64_t size)
 {
     Node *p = this->root;
-    unsigned long i = 0;
-    while(str[i])
-    {
-        //KIND=16, 所以一个字节分成2个4字节
-        unsigned short chr = str[i];
-        for(int j=0; j<2; ++j){
-            int index = chr % 16;
-	    index = (index | (j << 4));
-            chr /= 16;
-            while(p->next[index] == NULL && p != this->root)
-                p = p->fail;
-            if(p->next[index] == NULL)
-                p=this->root;
-            else
-                p=p->next[index];
-            if(p->end)
-            {
-                Result result = {i- strlen(p->word) + 1, p->word};
-                ret.push(result);
-                if(!multi) return;
+    for(uint64_t i=0;i<size;i++){
+        uint8_t index=data[i];
+        while(p->next[index] == NULL && p != this->root){
+            p = p->fail;
+        }
+        if(p->next[index] == NULL){
+            p=this->root;
+        }else{
+            p=p->next[index];
+            if(p->flag>0){
+                bool continu=matched(data,i,p->flag-1);
+                if(continu==false){
+                    return;
+                }
             }
         }
-        i++;
     }
 }
-
-
-int main()
-{
-    ACAutomation ac;
-    ac.insert("11");
-    ac.insert("22");
-    ac.build();
-    queue<Result> results;
-    ac.match("1111111111", true, results);
-    ac.~ACAutomation();
-    cout<<results.size()<<endl;
+bool ACAutomation::matched(uint8_t *data, uint64_t position,uint32_t id){
+    std::cout<<"ACAutomation::matched():pos="<<position<<" data[p]="<<data[position]<<" id="<<id<<"\r\n";
+    return true;
 }
+
+const char *pattern[5]={
+    "show",
+    "bl",
+    "a",
+    "d",
+    "ef",
+};
+
+uint8_t data[]="show me the money power overwhelming food for thought black sheep wall";
+
+int __attribute__((weak)) main()
+{
+    std::cout<<"\r\n--------start of ACAutomation demo--------\r\n";
+    ACAutomation ac;
+    for(int i=0;i<5;i++){
+        ac.insert((uint8_t*)pattern[i],strlen(pattern[i]),i);
+    }
+    ac.build();
+    ac.match(data,sizeof(data));
+    std::cout<<"\r\n--------end of program---------\r\n";
+}
+

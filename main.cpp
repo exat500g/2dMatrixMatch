@@ -40,7 +40,7 @@ int32_t kmpSearch(const uint8_t *context,int32_t contextSize,const uint8_t *patt
         return -1;
 }
 
-void printArray(auto *array,int size){
+void printArray(int *array,int size){
     for(int i=0;i<size;i++){
         cout<<array[i]<<" ";
     }
@@ -54,4 +54,6 @@ int main()
     cout << "Hello World! ret="<<ret << endl;
     return 0;
 }
+
+
 
