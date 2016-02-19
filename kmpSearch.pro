@@ -4,8 +4,10 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    ACAutomation.cpp
+    ACAutomation.cpp \
+    KmpSearch.cpp
 
 HEADERS += \
-    ACAutomation.h
+    ACAutomation.h \
+    KmpSearch.h
 

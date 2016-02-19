@@ -37,6 +37,7 @@ void ACAutomation::insert(uint8_t *pattern,uint32_t size,uint32_t id)
         p = p->next[index];
     }
     p->flag = id + 1;     //modify zero based id to 1 base id, because 0 is use as end flag
+    p->size = size;
 }
 
 void ACAutomation::build(){
@@ -73,7 +74,7 @@ void ACAutomation::build(){
 }
 
 
-void ACAutomation::match(uint8_t *data,uint64_t size)
+void ACAutomation::search(uint8_t *data,uint64_t size)
 {
     Node *p = this->root;
     for(uint64_t i=0;i<size;i++){
@@ -86,7 +87,7 @@ void ACAutomation::match(uint8_t *data,uint64_t size)
         }else{
             p=p->next[index];
             if(p->flag>0){
-                bool continu=matched(data,i,p->flag-1);
+                bool continu=matched(data, i- p->size+1, p->flag-1);
                 if(continu==false){
                     return;
                 }
@@ -95,11 +96,15 @@ void ACAutomation::match(uint8_t *data,uint64_t size)
     }
 }
 bool ACAutomation::matched(uint8_t *data, uint64_t position,uint32_t id){
-    std::cout<<"ACAutomation::matched():pos="<<position<<" data[p]="<<data[position]<<" id="<<id<<"\r\n";
+    std::cout<<"ACAutomation::matched():pos="<<position<<" data[pos]="<<data[position]<<" id="<<id<<"\r\n";
     return true;
 }
 
-const char *pattern[5]={
+
+
+
+
+static const char *pattern[5]={
     "show",
     "bl",
     "a",
@@ -107,7 +112,7 @@ const char *pattern[5]={
     "ef",
 };
 
-uint8_t data[]="show me the money power overwhelming food for thought black sheep wall";
+static uint8_t data[]="show me the money power overwhelming food for thought black sheep wall";
 
 int __attribute__((weak)) main()
 {
@@ -117,7 +122,7 @@ int __attribute__((weak)) main()
         ac.insert((uint8_t*)pattern[i],strlen(pattern[i]),i);
     }
     ac.build();
-    ac.match(data,sizeof(data));
+    ac.search(data,sizeof(data));
     std::cout<<"\r\n--------end of program---------\r\n";
 }
 
