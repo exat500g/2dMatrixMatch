@@ -100,19 +100,15 @@ bool ACAutomation::matched(uint8_t *data, uint64_t position,uint32_t id){
     return true;
 }
 
-
-
-
-
 static const char *pattern[5]={
+    "s",
+    "sh",
+    "sho",
     "show",
-    "bl",
-    "a",
-    "d",
-    "ef",
+    "show me",
 };
 
-static uint8_t data[]="show me the money power overwhelming food for thought black sheep wall";
+static uint8_t data[]="show me the money power overwhelming food for thought black sheep wall show me the money show me the money showmethemoneyshowmethemoney";
 
 int __attribute__((weak)) main()
 {

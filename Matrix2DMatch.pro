@@ -5,9 +5,11 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     ACAutomation.cpp \
-    KmpSearch.cpp
+    KmpSearch.cpp \
+    Matrix2DMatch.cpp
 
 HEADERS += \
     ACAutomation.h \
-    KmpSearch.h
+    KmpSearch.h \
+    Matrix2DMatch.h
 
