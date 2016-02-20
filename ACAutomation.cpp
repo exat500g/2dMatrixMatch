@@ -87,7 +87,7 @@ void ACAutomation::search(uint8_t *data,uint64_t size)
         }else{
             p=p->next[index];
             if(p->flag>0){
-                bool continu=matched(data, i- p->size+1, p->flag-1);
+                bool continu=matched(i- p->size+1, p->flag-1);
                 if(continu==false){
                     return;
                 }
@@ -95,8 +95,8 @@ void ACAutomation::search(uint8_t *data,uint64_t size)
         }
     }
 }
-bool ACAutomation::matched(uint8_t *data, uint64_t position,uint32_t id){
-    std::cout<<"ACAutomation::matched():pos="<<position<<" data[pos]="<<data[position]<<" id="<<id<<"\r\n";
+bool ACAutomation::matched(uint64_t position,uint32_t id){
+    std::cout<<"ACAutomation::matched():pos="<<position<<" id="<<id<<"\r\n";
     return true;
 }
 
@@ -105,10 +105,12 @@ static const char *pattern[5]={
     "sh",
     "sho",
     "show",
-    "show me",
+    "show", //对于重复的键值，以最后重复的id为准。如果出现重复id，会导致2d矩阵行查找不能以id定位
 };
 
 static uint8_t data[]="show me the money power overwhelming food for thought black sheep wall show me the money show me the money showmethemoneyshowmethemoney";
+
+#if 1
 
 int __attribute__((weak)) main()
 {
@@ -122,3 +124,4 @@ int __attribute__((weak)) main()
     std::cout<<"\r\n--------end of program---------\r\n";
 }
 
+#endif
