@@ -5,9 +5,12 @@
 #include <ctime>
 #include <cmath>
 #include <iomanip>
+#include <ctime>
 
-#define MSIZE 3
-#define NSIZE 10
+#include <sys/time.h>
+
+#define MSIZE 50
+#define NSIZE 1000
 
 uint8_t data[NSIZE][NSIZE];
 uint8_t pattern[MSIZE][MSIZE];
@@ -36,8 +39,15 @@ void printData(uint8_t *data,int32_t size){
         std::cout<<"\r\n";
     }
 }
-
+int64_t getTimestamp(){
+    timeval linuxTime;
+    gettimeofday(&linuxTime,0);
+    int64_t ts=linuxTime.tv_sec*1000000 + linuxTime.tv_usec;
+    return ts;
+}
 #if 1
+static int64_t startTime=0;
+static int64_t endTime=0;
 
 int main(){
     std::cout<<"\r\n-------start of main-------\r\n";
@@ -45,14 +55,18 @@ int main(){
     while(1){
         dataInit();
         std::cout<<"data=\r\n";
-        printData((uint8_t*)data,NSIZE);
+        //printData((uint8_t*)data,NSIZE);
         std::cout<<"patternPos="<<patternRow<<","<<patternCol<<" pattern=\r\n";
-        printData((uint8_t*)pattern,MSIZE);
+        //printData((uint8_t*)pattern,MSIZE);
         std::cout<<"result:\r\n";
         {
+            startTime=getTimestamp();
             Matrix2DMatch match;
             match.init((uint8_t*)data,NSIZE,(uint8_t*)pattern,MSIZE);
             match.search();
+            endTime=getTimestamp();
+            int64_t deltaTime=endTime-startTime;
+            std::cout<<"cost time (us)="<<deltaTime<<"\r\n";
         }
         int cont;
         std::cout<<"continue?0=no,1=yes:";
